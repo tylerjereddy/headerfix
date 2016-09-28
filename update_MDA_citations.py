@@ -23,6 +23,8 @@ new_header = ['# -*- Mode: python; tab-width: 4; indent-tabs-mode:nil; coding:ut
               '#\n']
 
 files_changed = 0
+old_counter = 0
+list_files_skipped_new_scheme = []
 for dirpath, dirnames, filenames in os.walk('/Users/treddy/python_modules/MDAnalysis/MDA_dev/mdanalysis'):
     if 'sphinx' in dirpath or 'html' in dirpath:
         continue
@@ -33,9 +35,13 @@ for dirpath, dirnames, filenames in os.walk('/Users/treddy/python_modules/MDAnal
             continue
         current_filepath = os.path.join(dirpath, filename)
         write_new_file = 0
+        old_line_counted = 0
         with open(current_filepath, 'r') as input_file:
             file_lines = input_file.readlines()
             for line in file_lines:
+                if 'cite' in line and '#' in line:
+                    old_counter += 1
+                    old_line_counted += 1
                 if 'Mode' in line and '#' in line and 'tab-width' in line: # focus on header metadata lines
                     print 'current_filepath:', current_filepath, 'header line:', line
                     start_line_index = file_lines.index(line)
@@ -49,8 +55,12 @@ for dirpath, dirnames, filenames in os.walk('/Users/treddy/python_modules/MDAnal
             with open(current_filepath, 'w') as output_file:
                 output_file.writelines(new_file_lines)
             files_changed += 1
+        elif old_line_counted:
+            list_files_skipped_new_scheme.append(current_filepath)
 
 print 'Done; files changed:', files_changed
+print 'old_counter:', old_counter
+print 'list_files_skipped_new_scheme:', list_files_skipped_new_scheme
 
 # now do another QC pass:
 
