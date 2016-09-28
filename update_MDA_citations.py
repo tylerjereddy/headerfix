@@ -36,15 +36,16 @@ for dirpath, dirnames, filenames in os.walk('/Users/treddy/python_modules/MDAnal
         with open(current_filepath, 'r') as input_file:
             file_lines = input_file.readlines()
             for line in file_lines:
-                if 'cite' in line and '#' in line: # focus on the comment lines, mostly in header metadata
-                    print 'current_filepath:', current_filepath, 'cite line:', line
-                    line_index = file_lines.index(line)
-
-                    new_file_lines = file_lines[:line_index + 1] + new_lines + ['\n'] + file_lines[line_index + 1:]
+                if 'Mode' in line and '#' in line and 'tab-width' in line: # focus on header metadata lines
+                    print 'current_filepath:', current_filepath, 'header line:', line
+                    start_line_index = file_lines.index(line)
+                    write_new_file += 1
+                elif 'Comput' in line and 'Chem' in line and '(2011)' in line:
+                    end_line_index = file_lines.index(line) + 1
                     write_new_file += 1
 
-
-        if write_new_file > 0:
+        if write_new_file == 2:
+            new_file_lines = file_lines[:start_line_index + 2] + new_header[2:] + file_lines[end_line_index + 1:]
             with open(current_filepath, 'w') as output_file:
                 output_file.writelines(new_file_lines)
             files_changed += 1
